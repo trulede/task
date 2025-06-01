@@ -162,8 +162,8 @@ func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 			}
 			call.Vertex.Task = t
 			if err := e.graph.AddVertex(call.Vertex); err != nil {
-				//graph.ErrVertexAlreadyExists
-				//return err  // This error condition also works, but the edge will fail too, not sure which is better, or if both are needed.
+				// graph.ErrVertexAlreadyExists
+				// return err  // This error condition also works, but the edge will fail too, not sure which is better, or if both are needed.
 			}
 			e.Logger.VerboseOutf(logger.BrightBlue, "CallGraph:vertex: %v\n", call.Vertex.Hash)
 			if call.Vertex.Parent != nil {

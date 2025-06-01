@@ -8,9 +8,8 @@ import (
 
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/mitchellh/hashstructure/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 type TaskfileGraph struct {
