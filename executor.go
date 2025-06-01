@@ -68,7 +68,6 @@ type (
 		fuzzyModel *fuzzy.Model
 
 		concurrencySemaphore chan struct{}
-		taskCallCount        map[string]*int32
 		mkdirMutexMap        map[string]*sync.Mutex
 		executionHashes      map[string]context.Context
 		executionHashesMutex sync.Mutex
@@ -97,7 +96,6 @@ func NewExecutor(opts ...ExecutorOption) *Executor {
 		graph:                ast.NewTaskExecutionGraph(),
 		fuzzyModel:           nil,
 		concurrencySemaphore: nil,
-		taskCallCount:        map[string]*int32{},
 		mkdirMutexMap:        map[string]*sync.Mutex{},
 		executionHashes:      map[string]context.Context{},
 		executionHashesMutex: sync.Mutex{},

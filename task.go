@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime"
 	"slices"
-	"sync/atomic"
 
 	"golang.org/x/sync/errgroup"
 	"mvdan.cc/sh/v3/interp"
@@ -22,12 +21,6 @@ import (
 	"github.com/go-task/task/v3/internal/summary"
 	"github.com/go-task/task/v3/internal/templater"
 	"github.com/go-task/task/v3/taskfile/ast"
-)
-
-const (
-	// MaximumTaskCall is the max number of times a task can be called.
-	// This exists to prevent infinite loops on cyclic dependencies
-	MaximumTaskCall = 1000
 )
 
 // MatchingTask represents a task that matches a given call. It includes the
@@ -138,13 +131,6 @@ func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 
 	if err := e.areTaskRequiredVarsAllowedValuesSet(t); err != nil {
 		return err
-	}
-
-	if !e.Watch && atomic.AddInt32(e.taskCallCount[t.Task], 1) >= MaximumTaskCall {
-		return &errors.TaskCalledTooManyTimesError{
-			TaskName:        t.Task,
-			MaximumTaskCall: MaximumTaskCall,
-		}
 	}
 
 	release := e.acquireConcurrencyLimit()

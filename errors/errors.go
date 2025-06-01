@@ -35,7 +35,6 @@ const (
 	CodeTaskRunError
 	CodeTaskInternal
 	CodeTaskNameConflict
-	CodeTaskCalledTooManyTimes
 	CodeTaskCancelled
 	CodeTaskMissingRequiredVars
 	CodeTaskNotAllowedVars
