@@ -152,7 +152,33 @@ func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
 		e.Logger.VerboseErrf(logger.Magenta, "task: %q started\n", call.Task)
-		if err := e.runDeps(ctx, t); err != nil {
+
+		// Update the CallGraph.
+		if err := func() error {
+			e.graph.Lock()
+			defer e.graph.Unlock()
+			if call.Vertex == nil {
+				call.Vertex = &ast.TaskExecutionVertex{}
+			}
+			call.Vertex.Task = t
+			if err := e.graph.AddVertex(call.Vertex); err != nil {
+				//graph.ErrVertexAlreadyExists
+				//return err  // This error condition also works, but the edge will fail too, not sure which is better, or if both are needed.
+			}
+			e.Logger.VerboseOutf(logger.BrightBlue, "CallGraph:vertex: %v\n", call.Vertex.Hash)
+			if call.Vertex.Parent != nil {
+				if err := e.graph.AddEdge(call.Vertex.Parent.Hash, call.Vertex.Hash); err != nil {
+					// graph.ErrEdgeAlreadyExists
+					// graph.ErrEdgeCreatesCycle
+					return err
+				}
+			}
+			return nil
+		}(); err != nil {
+			return err
+		}
+
+		if err := e.runDeps(ctx, t, call.Vertex); err != nil {
 			return err
 		}
 
@@ -258,16 +284,17 @@ func (e *Executor) mkdir(t *ast.Task) error {
 	return nil
 }
 
-func (e *Executor) runDeps(ctx context.Context, t *ast.Task) error {
+func (e *Executor) runDeps(ctx context.Context, t *ast.Task, v *ast.TaskExecutionVertex) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	reacquire := e.releaseConcurrencyLimit()
 	defer reacquire()
 
-	for _, d := range t.Deps {
+	for i, d := range t.Deps {
 		d := d
 		g.Go(func() error {
-			err := e.RunTask(ctx, &Call{Task: d.Task, Vars: d.Vars, Silent: d.Silent, Indirect: true})
+			vDep := &ast.TaskExecutionVertex{CallIndex: i, Parent: v}
+			err := e.RunTask(ctx, &Call{Task: d.Task, Vars: d.Vars, Silent: d.Silent, Indirect: true, Vertex: vDep})
 			if err != nil {
 				return err
 			}
@@ -313,7 +340,8 @@ func (e *Executor) runCommand(ctx context.Context, t *ast.Task, call *Call, i in
 		reacquire := e.releaseConcurrencyLimit()
 		defer reacquire()
 
-		err := e.RunTask(ctx, &Call{Task: cmd.Task, Vars: cmd.Vars, Silent: cmd.Silent, Indirect: true})
+		vCmd := &ast.TaskExecutionVertex{CallIndex: i, Parent: call.Vertex}
+		err := e.RunTask(ctx, &Call{Task: cmd.Task, Vars: cmd.Vars, Silent: cmd.Silent, Indirect: true, Vertex: vCmd})
 		if err != nil {
 			return err
 		}

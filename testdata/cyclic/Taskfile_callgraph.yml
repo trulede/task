@@ -1,0 +1,47 @@
+version: '3'
+
+silent: true
+
+tasks:
+  # call: A -> B -> A -> B ...
+  one:
+    aliases: [call]
+    cmds:
+      - echo "one"
+      - task: two
+  two:
+    cmds:
+      - echo "two"
+      - task: one
+
+  # call multiple
+  multi-cmd-cycle:
+    cmds:
+      - task: one
+      - task: one
+      - task: one
+  multi-dep-cycle:
+    deps:
+      - task: one
+      - task: one
+      - task: one
+  multi-dep-ok:
+    deps:
+      - task: three
+      - task: three
+      - task: three
+  three:
+    cmds:
+      - echo "three"
+
+  # dep: a <- B <- A <- B ...
+  task-1:
+    aliases: [dep]
+    deps:
+      - task: task-2
+
+  task-2:
+    deps:
+      - task: task-1
+
+

@@ -3,11 +3,14 @@ package ast
 import (
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/mitchellh/hashstructure/v2"
 )
 
 type TaskfileGraph struct {
@@ -117,4 +120,58 @@ func (tfg *TaskfileGraph) Merge() (*Taskfile, error) {
 	}
 
 	return rootVertex.Taskfile, nil
+}
+
+type TaskExecutionGraph struct {
+	sync.Mutex
+	graph.Graph[string, *TaskExecutionVertex]
+}
+
+type TaskExecutionVertex struct {
+	Task      *Task
+	CallIndex int
+	Parent    *TaskExecutionVertex
+	Hash      string
+}
+
+func taskExecutionHash(v *TaskExecutionVertex) string {
+	if len(v.Hash) == 0 {
+		// Vertex hash is identified by:
+		//	* the task hash (as used by run: when_changed)
+		//	* the call index (or dep index)
+		//	* the parent task name
+		// The idea being that these elements uniquely identify a call. It could
+		// be that the parent call/dep index is also needed.
+		var h strings.Builder
+		if v.Task != nil {
+			taskHash, _ := hashstructure.Hash(v.Task, hashstructure.FormatV2, nil)
+			h.WriteString(fmt.Sprintf("%s:%d", v.Task.Task, taskHash))
+		}
+		h.WriteString(fmt.Sprintf("::callIndex:%v", v.CallIndex))
+		if v.Parent != nil {
+			h.WriteString(fmt.Sprintf("::parentHash:%v", v.Parent.Task.Task))
+		}
+		v.Hash = h.String()
+	}
+	return v.Hash
+}
+
+func NewTaskExecutionGraph() *TaskExecutionGraph {
+	return &TaskExecutionGraph{
+		sync.Mutex{},
+		graph.New(taskExecutionHash,
+			graph.Directed(),
+			graph.PreventCycles(),
+			graph.Rooted(),
+		),
+	}
+}
+
+func (teg *TaskExecutionGraph) Visualize(filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return draw.DOT(teg.Graph, f)
 }

@@ -63,6 +63,8 @@ type (
 		UserWorkingDir     string
 		EnableVersionCheck bool
 
+		graph *ast.TaskExecutionGraph
+
 		fuzzyModel *fuzzy.Model
 
 		concurrencySemaphore chan struct{}
@@ -92,6 +94,7 @@ func NewExecutor(opts ...ExecutorOption) *Executor {
 		OutputStyle:          ast.Output{},
 		TaskSorter:           sort.AlphaNumericWithRootTasksFirst,
 		UserWorkingDir:       "",
+		graph:                ast.NewTaskExecutionGraph(),
 		fuzzyModel:           nil,
 		concurrencySemaphore: nil,
 		taskCallCount:        map[string]*int32{},
