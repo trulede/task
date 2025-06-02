@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"slices"
 
+	"github.com/dominikbraun/graph"
 	"golang.org/x/sync/errgroup"
 	"mvdan.cc/sh/v3/interp"
 
@@ -148,15 +149,24 @@ func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 			}
 			call.Vertex.Task = t
 			if err := e.graph.AddVertex(call.Vertex); err != nil {
-				// graph.ErrVertexAlreadyExists
-				// return err  // This error condition also works, but the edge will fail too, not sure which is better, or if both are needed.
+				switch {
+				case errors.Is(err, graph.ErrVertexAlreadyExists):
+					// consume this error
+				default:
+					return err
+				}
 			}
 			e.Logger.VerboseOutf(logger.BrightBlue, "CallGraph:vertex: %v\n", call.Vertex.Hash)
 			if call.Vertex.Parent != nil {
 				if err := e.graph.AddEdge(call.Vertex.Parent.Hash, call.Vertex.Hash); err != nil {
-					// graph.ErrEdgeAlreadyExists
-					// graph.ErrEdgeCreatesCycle
-					return err
+					switch {
+					case errors.Is(err, graph.ErrEdgeAlreadyExists):
+						// consume this error
+					case errors.Is(err, graph.ErrEdgeCreatesCycle):
+						return err
+					default:
+						return err
+					}
 				}
 			}
 			return nil

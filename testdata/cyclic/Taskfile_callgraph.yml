@@ -44,4 +44,108 @@ tasks:
     deps:
       - task: task-1
 
+  # for
+  for-item:
+    cmds:
+      - echo '{{.FILE}}'
+
+  for-ok:
+    cmds:
+      - for: ['foo.txt', 'bar.txt']
+        task: for-item
+        vars:
+          FILE: '{{.ITEM}}'
+  for-ok-duplicate-item:
+    cmds:
+      - for: ['foo.txt', 'foo.txt']
+        task: for-item
+        vars:
+          FILE: '{{.ITEM}}'
+
+  item-task:
+    cmds:
+      - echo '{{.FILE}}'
+      - task: for-item
+  item-task-var:
+    cmds:
+      - echo '{{.FILE}}'
+      - task: for-item
+        vars:
+          FILE: '{{.FILE}}'
+  for-item-task:
+    cmds:
+      - for: ['foo.txt', 'bar.txt']
+        task: item-task
+        vars:
+          FILE: '{{.ITEM}}'
+  item-task-cycle:
+    cmds:
+      - echo '{{.FILE}}'
+      - task: for-item-task-cycle
+  for-item-task-cycle:
+    cmds:
+      - for: ['foo.txt', 'bar.txt']
+        task: item-task-cycle
+        vars:
+          FILE: '{{.ITEM}}'
+  item-task-dep:
+    deps:
+      - item-task
+    cmds:
+      - echo '{{.FILE}}'
+  item-task-nodep:
+    cmds:
+      - echo '{{.FILE}}'
+      - task: item-task
+  item-task-nodep-var:
+    vars:
+      FILE: '{{.FILE}}'
+    cmds:
+      - echo '{{.FILE}}'
+      - task: item-task
+  item-task-nodep-var-var:
+    cmds:
+      - echo '{{.FILE}}'
+      - task: item-task-var
+        vars:
+          FILE: '{{.FILE}}'
+
+  # Fails with condition "edge already exists"
+  # for-item-dep -0-> item-task-dep -0-> item-task -1-> for-item  *** -x- x = call index
+  # for-item-dep - *** task finished to ..
+  # for-item-dep -1-> item-task-dep -0-> item-task -1-> for-item  *** Fails because last edge already exists.
+  # THEORY: no vars are passed, so the hash for both is identical, therefore a duplicate edge.
+  # identifying information is lost via the longer call sequence
+  # PROOF: for-item-nodep-var-var will work, has vars for each task call.
+  # SOLUTION:
+  #   idea - the item-task node is common even though the call path is different.
+  #     either ensure additional nodes (hash of call history)             *** needs more thought on the graph structure
+  #     or consider disable duplicate edge fail case (consume the error)  *** this solution will work
+  for-item-dep:
+    cmds:
+      - for: ['foo.txt', 'bar.txt']
+        task: item-task-dep
+        vars:
+          FILE: '{{.ITEM}}'
+  for-item-nodep:
+    cmds:
+      - for: ['foo.txt', 'bar.txt']
+        task: item-task-nodep
+        vars:
+          FILE: '{{.ITEM}}'
+  for-item-nodep-var:
+    cmds:
+      - for: ['foo.txt', 'bar.txt']
+        task: item-task-nodep-var
+        vars:
+          FILE: '{{.ITEM}}'
+  for-item-nodep-var-var:
+    cmds:
+      - for: ['foo.txt', 'bar.txt']
+        task: item-task-nodep-var-var
+        vars:
+          FILE: '{{.ITEM}}'
+
+
+
 
