@@ -2,8 +2,8 @@ package ast
 
 import (
 	"fmt"
+	"hash/fnv"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/dominikbraun/graph"
@@ -135,22 +135,13 @@ type TaskExecutionVertex struct {
 
 func taskExecutionHash(v *TaskExecutionVertex) string {
 	if len(v.Hash) == 0 {
-		// Vertex hash is identified by:
-		//	* the task hash (as used by run: when_changed)
-		//	* the call index (or dep index)
-		//	* the parent task name
-		// The idea being that these elements uniquely identify a call. It could
-		// be that the parent call/dep index is also needed.
-		var h strings.Builder
+		h := fnv.New64a()
 		if v.Task != nil {
 			taskHash, _ := hashstructure.Hash(v.Task, hashstructure.FormatV2, nil)
-			h.WriteString(fmt.Sprintf("%s:%d", v.Task.Task, taskHash))
+			hashString := fmt.Sprintf("%s:%d:%v", v.Task.Task, taskHash, v.CallIndex)
+			h.Write([]byte(hashString))
 		}
-		h.WriteString(fmt.Sprintf("::callIndex:%v", v.CallIndex))
-		if v.Parent != nil {
-			h.WriteString(fmt.Sprintf("::parentHash:%v", v.Parent.Task.Task))
-		}
-		v.Hash = h.String()
+		v.Hash = fmt.Sprintf("%v", h.Sum64())
 	}
 	return v.Hash
 }

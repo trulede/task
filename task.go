@@ -156,7 +156,11 @@ func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 					return err
 				}
 			}
-			e.Logger.VerboseOutf(logger.BrightBlue, "CallGraph:vertex: %v\n", call.Vertex.Hash)
+			if call.Vertex.Parent == nil {
+				e.Logger.VerboseOutf(logger.BrightBlue, "ExecutionGraph:vertex: %s : %v\n", call.Vertex.Hash, call.Task)
+			} else {
+				e.Logger.VerboseOutf(logger.BrightBlue, "ExecutionGraph:vertex: %s -> %s : %v\n", call.Vertex.Parent.Hash, call.Vertex.Hash, call.Task)
+			}
 			if call.Vertex.Parent != nil {
 				if err := e.graph.AddEdge(call.Vertex.Parent.Hash, call.Vertex.Hash); err != nil {
 					switch {
