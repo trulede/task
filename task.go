@@ -110,6 +110,50 @@ func (e *Executor) splitRegularAndWatchCalls(calls ...*Call) (regularCalls []*Ca
 	return
 }
 
+func (e *Executor) updateExecutionGraph(t *ast.Task, call *Call) error {
+	e.graph.Lock()
+	defer e.graph.Unlock()
+	if call.Vertex == nil {
+		call.Vertex = &ast.TaskExecutionVertex{}
+	}
+	call.Vertex.Task = t
+	if err := e.graph.AddVertex(call.Vertex); err != nil {
+		switch {
+		case errors.Is(err, graph.ErrVertexAlreadyExists):
+			// consume this error
+		default:
+			return err
+		}
+	}
+	if call.Vertex.Parent == nil {
+		e.Logger.VerboseOutf(logger.BrightBlue, "ExecutionGraph:vertex: %s : %v\n", call.Vertex.Hash, call.Task)
+	} else {
+		e.Logger.VerboseOutf(logger.BrightBlue, "ExecutionGraph:vertex: %s -> %s : %v\n", call.Vertex.Parent.Hash, call.Vertex.Hash, call.Task)
+	}
+	if call.Vertex.Parent != nil {
+		if err := e.graph.AddEdge(call.Vertex.Parent.Hash, call.Vertex.Hash); err != nil {
+			switch {
+			case errors.Is(err, graph.ErrEdgeAlreadyExists):
+				// consume this error
+			case errors.Is(err, graph.ErrEdgeCreatesCycle):
+				if call.Vertex.Parent == nil {
+					return &errors.TaskCyclicExecutionDetectedError{
+						TaskName: call.Task,
+					}
+				} else {
+					return &errors.TaskCyclicExecutionDetectedError{
+						TaskName:        call.Task,
+						CallingTaskName: call.Vertex.Parent.Task.Task,
+					}
+				}
+			default:
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // RunTask runs a task by its name
 func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 	t, err := e.FastCompiledTask(call)
@@ -140,41 +184,7 @@ func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
 		e.Logger.VerboseErrf(logger.Magenta, "task: %q started\n", call.Task)
 
-		// Update the CallGraph.
-		if err := func() error {
-			e.graph.Lock()
-			defer e.graph.Unlock()
-			if call.Vertex == nil {
-				call.Vertex = &ast.TaskExecutionVertex{}
-			}
-			call.Vertex.Task = t
-			if err := e.graph.AddVertex(call.Vertex); err != nil {
-				switch {
-				case errors.Is(err, graph.ErrVertexAlreadyExists):
-					// consume this error
-				default:
-					return err
-				}
-			}
-			if call.Vertex.Parent == nil {
-				e.Logger.VerboseOutf(logger.BrightBlue, "ExecutionGraph:vertex: %s : %v\n", call.Vertex.Hash, call.Task)
-			} else {
-				e.Logger.VerboseOutf(logger.BrightBlue, "ExecutionGraph:vertex: %s -> %s : %v\n", call.Vertex.Parent.Hash, call.Vertex.Hash, call.Task)
-			}
-			if call.Vertex.Parent != nil {
-				if err := e.graph.AddEdge(call.Vertex.Parent.Hash, call.Vertex.Hash); err != nil {
-					switch {
-					case errors.Is(err, graph.ErrEdgeAlreadyExists):
-						// consume this error
-					case errors.Is(err, graph.ErrEdgeCreatesCycle):
-						return err
-					default:
-						return err
-					}
-				}
-			}
-			return nil
-		}(); err != nil {
+		if err := e.updateExecutionGraph(t, call); err != nil {
 			return err
 		}
 
@@ -256,6 +266,11 @@ func (e *Executor) RunTask(ctx context.Context, call *Call) error {
 				}
 
 				if call.Indirect {
+					return err
+				}
+
+				taskCyclicExecutionDetectedErr := &errors.TaskCyclicExecutionDetectedError{}
+				if errors.As(err, &taskCyclicExecutionDetectedErr) {
 					return err
 				}
 

@@ -93,6 +93,32 @@ func (err *TaskNameFlattenConflictError) Code() int {
 	return CodeTaskNameConflict
 }
 
+// TaskCyclicExecutionDetectedError is returned when the Execution Graph detects
+// a cyclic execution condition.
+type TaskCyclicExecutionDetectedError struct {
+	TaskName        string
+	CallingTaskName string
+}
+
+func (err *TaskCyclicExecutionDetectedError) Error() string {
+	if len(err.CallingTaskName) > 0 {
+		return fmt.Sprintf(
+			`task: Cyclic task call execution detected for task %q (calling task %q)`,
+			err.TaskName,
+			err.CallingTaskName,
+		)
+	} else {
+		return fmt.Sprintf(
+			`task: Cyclic task call execution detected for task %q`,
+			err.TaskName,
+		)
+	}
+}
+
+func (err *TaskCyclicExecutionDetectedError) Code() int {
+	return CodeTaskCyclicExecutionDetected
+}
+
 // TaskCancelledByUserError is returned when the user does not accept an optional prompt to continue.
 type TaskCancelledByUserError struct {
 	TaskName string

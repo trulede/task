@@ -35,9 +35,11 @@ const (
 	CodeTaskRunError
 	CodeTaskInternal
 	CodeTaskNameConflict
+	CodeTaskCalledTooManyTimes // Depreciated: replaced by CodeTaskCyclicExecutionDetected.
 	CodeTaskCancelled
 	CodeTaskMissingRequiredVars
 	CodeTaskNotAllowedVars
+	CodeTaskCyclicExecutionDetected
 )
 
 // TaskError extends the standard error interface with a Code method. This code will
