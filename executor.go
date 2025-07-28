@@ -10,10 +10,10 @@ import (
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/sajari/fuzzy"
 
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/output"
-	"github.com/go-task/task/v3/internal/sort"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3/internal/logger"
+	"github.com/boschglobal/task/v3/internal/output"
+	"github.com/boschglobal/task/v3/internal/sort"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 type (

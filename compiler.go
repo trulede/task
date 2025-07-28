@@ -9,13 +9,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-task/task/v3/internal/env"
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/filepathext"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/templater"
-	"github.com/go-task/task/v3/internal/version"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3/internal/env"
+	"github.com/boschglobal/task/v3/internal/execext"
+	"github.com/boschglobal/task/v3/internal/filepathext"
+	"github.com/boschglobal/task/v3/internal/logger"
+	"github.com/boschglobal/task/v3/internal/templater"
+	"github.com/boschglobal/task/v3/internal/version"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 type Compiler struct {

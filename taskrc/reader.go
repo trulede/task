@@ -5,7 +5,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/go-task/task/v3/taskrc/ast"
+	"github.com/boschglobal/task/v3/taskrc/ast"
 )
 
 type (

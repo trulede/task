@@ -3,8 +3,8 @@ package task
 import (
 	"slices"
 
-	"github.com/go-task/task/v3/errors"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3/errors"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 func isNilValue(value any) bool {

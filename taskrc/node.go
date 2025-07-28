@@ -1,6 +1,6 @@
 package taskrc
 
-import "github.com/go-task/task/v3/internal/fsext"
+import "github.com/boschglobal/task/v3/internal/fsext"
 
 type Node struct {
 	entrypoint string

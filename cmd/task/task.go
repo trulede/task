@@ -8,15 +8,15 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"github.com/go-task/task/v3"
-	"github.com/go-task/task/v3/args"
-	"github.com/go-task/task/v3/errors"
-	"github.com/go-task/task/v3/experiments"
-	"github.com/go-task/task/v3/internal/filepathext"
-	"github.com/go-task/task/v3/internal/flags"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/version"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3"
+	"github.com/boschglobal/task/v3/args"
+	"github.com/boschglobal/task/v3/errors"
+	"github.com/boschglobal/task/v3/experiments"
+	"github.com/boschglobal/task/v3/internal/filepathext"
+	"github.com/boschglobal/task/v3/internal/flags"
+	"github.com/boschglobal/task/v3/internal/logger"
+	"github.com/boschglobal/task/v3/internal/version"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 func main() {

@@ -4,8 +4,8 @@ import (
 	_ "embed"
 	"os"
 
-	"github.com/go-task/task/v3/errors"
-	"github.com/go-task/task/v3/internal/filepathext"
+	"github.com/boschglobal/task/v3/errors"
+	"github.com/boschglobal/task/v3/internal/filepathext"
 )
 
 const defaultTaskFilename = "Taskfile.yml"

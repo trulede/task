@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-task/task/v3/experiments"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3/experiments"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 const taskVarPrefix = "TASK_"

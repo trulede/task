@@ -5,7 +5,7 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/go-task/task/v3/taskrc/ast"
+	"github.com/boschglobal/task/v3/taskrc/ast"
 )
 
 type Experiment struct {

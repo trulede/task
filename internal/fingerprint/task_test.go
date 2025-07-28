@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 // TruthTable

@@ -6,8 +6,8 @@ import (
 	"github.com/elliotchance/orderedmap/v3"
 	"gopkg.in/yaml.v3"
 
-	"github.com/go-task/task/v3/errors"
-	"github.com/go-task/task/v3/internal/deepcopy"
+	"github.com/boschglobal/task/v3/errors"
+	"github.com/boschglobal/task/v3/internal/deepcopy"
 )
 
 type (

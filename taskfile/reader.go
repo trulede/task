@@ -11,11 +11,11 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 
-	"github.com/go-task/task/v3/errors"
-	"github.com/go-task/task/v3/internal/env"
-	"github.com/go-task/task/v3/internal/filepathext"
-	"github.com/go-task/task/v3/internal/templater"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3/errors"
+	"github.com/boschglobal/task/v3/internal/env"
+	"github.com/boschglobal/task/v3/internal/filepathext"
+	"github.com/boschglobal/task/v3/internal/templater"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 const (

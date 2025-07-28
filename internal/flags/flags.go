@@ -10,12 +10,12 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"github.com/go-task/task/v3"
-	"github.com/go-task/task/v3/errors"
-	"github.com/go-task/task/v3/experiments"
-	"github.com/go-task/task/v3/internal/env"
-	"github.com/go-task/task/v3/internal/sort"
-	"github.com/go-task/task/v3/taskfile/ast"
+	"github.com/boschglobal/task/v3"
+	"github.com/boschglobal/task/v3/errors"
+	"github.com/boschglobal/task/v3/experiments"
+	"github.com/boschglobal/task/v3/internal/env"
+	"github.com/boschglobal/task/v3/internal/sort"
+	"github.com/boschglobal/task/v3/taskfile/ast"
 )
 
 const usage = `Usage: task [flags...] [task...]
