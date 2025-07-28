@@ -60,4 +60,4 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
 
-replace github.com/go-task/task => github.com/boschglobal/task latest
+replace github.com/go-task/task => github.com/boschglobal/task v3.0.0-latest
